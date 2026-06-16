@@ -48,3 +48,5 @@ Or install from a local checkout:
 ```bash
 codex plugin marketplace add /path/to/cjk-layout-audit-skill
 ```
+
+In the Codex app, add `sichengchen/cjk-layout-audit-skill` as the source, use `main` as the Git ref, and leave `Sparse paths` empty.

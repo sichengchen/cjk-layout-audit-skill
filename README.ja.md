@@ -48,3 +48,5 @@ codex plugin marketplace add sichengchen/cjk-layout-audit-skill
 ```bash
 codex plugin marketplace add /path/to/cjk-layout-audit-skill
 ```
+
+Codex app では、Source に `sichengchen/cjk-layout-audit-skill`、Git ref に `main` を指定し、`Sparse paths` は空のままにしてください。
