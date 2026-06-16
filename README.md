@@ -37,10 +37,10 @@ The audit should return concrete findings with affected content, evidence, W3C m
 
 ## Codex Plugin
 
-This repository contains the `cjk-layout-audit` skill source. Install the Codex plugin from the separate marketplace repository:
+Install the Codex plugin from my Codex Marketplace:
 
 ```bash
 codex plugin marketplace add sichengchen/codex-plugins
 ```
 
-The marketplace repository packages this skill as the `cjk-text-layout` Codex plugin.
+Then install the `cjk-text-layout` plugin.

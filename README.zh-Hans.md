@@ -37,10 +37,10 @@
 
 ## Codex Plugin
 
-此 repository 包含 `cjk-layout-audit` skill source。请从独立的 marketplace repository 安装 Codex plugin：
+请从我的 Codex Marketplace 安装 Codex 插件：
 
 ```bash
 codex plugin marketplace add sichengchen/codex-plugins
 ```
 
-Marketplace repository 会将此 skill 打包为 `cjk-text-layout` Codex plugin。
+然后安装插件 `cjk-text-layout`。
