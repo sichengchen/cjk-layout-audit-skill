@@ -1,54 +1,36 @@
-# CJK Layout Audit Agent Skill
+# CJK 文字排版审查 Agent Skill
 
 [English](README.md) | [繁體中文](README.zh-Hant.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
 
-本仓库包含 `cjk-layout-audit` agent skill，用于依据 W3C 文字排版需求，审查前端页面、已渲染网页、EPUB/电子书、PDF、截图和源文件中的中文、日文与韩文文字排版。
+`cjk-layout-audit` 是用于审查中文、日文与韩文文字排版的 agent skill，适用于网页、前端应用、电子书、PDF、截图，以及可以渲染的源代码内容。
 
-此 skill 基于以下 W3C 文档：
+它可以帮助 agent 检查 CJK 文字是否易读、换行是否正确、标点与间距是否合理，并确认结果是否符合 W3C 文字排版需求。
 
-- [JLReq: Requirements for Japanese Text Layout](https://www.w3.org/TR/jlreq/)
-- [CLReq: Requirements for Chinese Text Layout](https://www.w3.org/TR/clreq/)
-- [KLReq: Requirements for Hangul Text Layout and Typography](https://www.w3.org/TR/klreq/)
+## 依据标准
 
-## 内容
+- [JLReq：日本語組版処理の要件](https://www.w3.org/TR/jlreq/)
+- [CLReq：中文排版需求](https://www.w3.org/TR/clreq/)
+- [KLReq：한국어 텍스트 레이아웃 및 타이포그래피를 위한 요구사항](https://www.w3.org/TR/klreq/)
 
-- `cjk-layout-audit/SKILL.md` - 主要 skill 指令与工作流。
-- `cjk-layout-audit/references/audit-model.md` - W3C 需求分类、严重程度规则和证据标准。
-- `cjk-layout-audit/references/artifact-contract.md` - `/goal` 循环、subagent、产物、receipt 和报告契约。
-- `cjk-layout-audit/scripts/cjk_layout_probe.py` - 用于本地文本、HTML/XHTML、CSS 和 EPUB 初步检查的辅助脚本。
-- `cjk-layout-audit/agents/openai.yaml` - skill 的 UI 元数据。
+## 可审查项目
+
+- 语言与 locale metadata
+- 横排、竖排与混合书写方向
+- 换行、行首禁则与行尾禁则
+- 标点间距、悬挂标点与连续标点处理
+- ruby、注音／旁注、强调标记与行内注
+- CJK 与拉丁文字混排、数字、日期与符号
+- 段落间距、对齐、孤行、孤字、标题与分页
+- 电子书或 PDF 的页面版式、页眉、图表、表格与注释
 
 ## 使用方式
 
-在 Codex 等 agent runtime 中，可以用以下方式调用 skill：
+在支持此 skill 的 agent runtime 中，可以使用以下 prompt：
 
 ```text
-Use $cjk-layout-audit to audit this CJK webpage or ebook for W3C text layout issues.
+使用 $cjk-layout-audit 审查这个 CJK 网页或电子书，检查是否符合 W3C 文字排版需求。
 ```
 
-对于非单页的小型审查，skill 会要求 agent 使用 `/goal` 循环、将覆盖范围拆分给 subagent、要求每个 surface 生成 receipt，并且只在声明的审查范围完成闭合后才结束。
+如果审查范围较大，请提供目标 URL、本地文件、截图、电子书／PDF、预期语言，以及需要检查的设备或页面尺寸。
 
-## Probe Script
-
-对本地文件运行辅助脚本，可以识别 CJK 文字覆盖、相关 CSS 属性、ruby 标记、可疑的行首/行尾标点，以及 CJK/拉丁文字混排间距线索：
-
-```bash
-python3 cjk-layout-audit/scripts/cjk_layout_probe.py --json path/to/file.html
-```
-
-probe 输出只作为初步线索。skill 要求必须有渲染后或抽取出的证据，才可以报告排版 finding。
-
-## 验证
-
-创建时使用的基本本地检查：
-
-```bash
-python3 -B cjk-layout-audit/scripts/cjk_layout_probe.py --json path/to/file.html
-PYTHONDONTWRITEBYTECODE=1 python3 -m py_compile cjk-layout-audit/scripts/cjk_layout_probe.py
-```
-
-当 Python 依赖可用时，可以运行 Codex-compatible skill validator：
-
-```bash
-python3 ~/.codex/skills/.system/skill-creator/scripts/quick_validate.py cjk-layout-audit
-```
+审查结果应包含具体问题、受影响范围、证据、对应的 W3C 需求、影响与修正建议。

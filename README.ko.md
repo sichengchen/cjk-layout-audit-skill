@@ -1,54 +1,36 @@
-# CJK Layout Audit Agent Skill
+# CJK 텍스트 레이아웃 감사 Agent Skill
 
 [English](README.md) | [繁體中文](README.zh-Hant.md) | [简体中文](README.zh-Hans.md) | [日本語](README.ja.md)
 
-이 저장소에는 W3C 텍스트 레이아웃 요구사항을 기준으로 프런트엔드 화면, 렌더링된 웹페이지, EPUB/전자책, PDF, 스크린샷, 소스 파일의 중국어, 일본어, 한국어 텍스트 레이아웃을 감사하는 `cjk-layout-audit` agent skill 이 포함되어 있습니다.
+`cjk-layout-audit`는 중국어, 일본어, 한국어 텍스트 레이아웃을 감사하기 위한 agent skill입니다. 웹페이지, 프런트엔드 앱, 전자책, PDF, 스크린샷, 렌더링 가능한 소스 기반 콘텐츠를 대상으로 사용할 수 있습니다.
 
-이 skill 은 다음 W3C 문서를 기반으로 합니다.
+이 skill은 CJK 텍스트가 읽기 쉬운지, 줄바꿈이 적절한지, 문장부호와 간격이 자연스러운지 확인하고, W3C 텍스트 레이아웃 요구사항에 맞춰 문제를 정리합니다.
 
-- [JLReq: Requirements for Japanese Text Layout](https://www.w3.org/TR/jlreq/)
-- [CLReq: Requirements for Chinese Text Layout](https://www.w3.org/TR/clreq/)
-- [KLReq: Requirements for Hangul Text Layout and Typography](https://www.w3.org/TR/klreq/)
+## 기준 문서
 
-## 구성
+- [JLReq: 日本語組版処理の要件](https://www.w3.org/TR/jlreq/)
+- [CLReq: 中文排版需求](https://www.w3.org/TR/clreq/)
+- [KLReq: 한국어 텍스트 레이아웃 및 타이포그래피를 위한 요구사항](https://www.w3.org/TR/klreq/)
 
-- `cjk-layout-audit/SKILL.md` - 주요 skill 지침과 워크플로.
-- `cjk-layout-audit/references/audit-model.md` - W3C 요구사항 범주, 심각도 규칙, 증거 기준.
-- `cjk-layout-audit/references/artifact-contract.md` - `/goal` 루프, subagent, 산출물, receipt, 보고서 계약.
-- `cjk-layout-audit/scripts/cjk_layout_probe.py` - 로컬 텍스트, HTML/XHTML, CSS, EPUB 초기 조사를 위한 보조 스크립트.
-- `cjk-layout-audit/agents/openai.yaml` - skill UI 메타데이터.
+## 확인 항목
 
-## 사용
+- 언어 지정과 locale metadata
+- 가로쓰기, 세로쓰기, 혼합 쓰기 방향
+- 줄바꿈, 줄 시작 금칙, 줄 끝 금칙
+- 문장부호 간격, 매달린 문장부호, 연속 문장부호 처리
+- ruby, 주석, 강조 표시, 인라인 주
+- CJK와 라틴 문자 혼합, 숫자, 날짜, 기호
+- 문단 간격, 정렬, 고립 행, 고립 글자, 제목, 페이지 나눔
+- 전자책 또는 PDF의 페이지 구성, 머리말, 그림, 표, 주석
 
-Codex 같은 agent runtime 에서 다음과 같이 skill 을 호출합니다.
+## 사용 방법
+
+이 skill을 사용할 수 있는 agent runtime에서 다음 prompt를 사용합니다.
 
 ```text
-Use $cjk-layout-audit to audit this CJK webpage or ebook for W3C text layout issues.
+$cjk-layout-audit를 사용해 이 CJK 웹페이지 또는 전자책이 W3C 텍스트 레이아웃 요구사항에 맞는지 감사해 주세요.
 ```
 
-단일 페이지 수준의 작은 확인을 넘어서는 감사에서는 이 skill 이 `/goal` 루프를 사용하고, 범위를 subagent 로 나누며, 각 surface 의 receipt 를 요구하고, 선언된 감사 범위가 닫힌 뒤에만 완료하도록 지시합니다.
+감사 범위가 크다면 대상 URL, 로컬 파일, 스크린샷, 전자책/PDF, 예상 언어, 확인할 기기나 페이지 크기를 함께 제공하세요.
 
-## Probe Script
-
-보조 스크립트를 로컬 파일에 실행하면 CJK 문자 포함 여부, 관련 CSS 속성, ruby 마크업, 의심스러운 줄 시작/끝 문장부호, CJK/라틴 혼합 텍스트 간격 단서를 확인할 수 있습니다.
-
-```bash
-python3 cjk-layout-audit/scripts/cjk_layout_probe.py --json path/to/file.html
-```
-
-probe 출력은 초기 조사 단서일 뿐입니다. 이 skill 은 레이아웃 finding 을 보고하기 전에 렌더링되었거나 추출된 증거를 요구합니다.
-
-## 검증
-
-생성 중 사용한 기본 로컬 검사:
-
-```bash
-python3 -B cjk-layout-audit/scripts/cjk_layout_probe.py --json path/to/file.html
-PYTHONDONTWRITEBYTECODE=1 python3 -m py_compile cjk-layout-audit/scripts/cjk_layout_probe.py
-```
-
-Python 의존성이 준비되어 있으면 Codex-compatible skill validator 를 실행할 수 있습니다.
-
-```bash
-python3 ~/.codex/skills/.system/skill-creator/scripts/quick_validate.py cjk-layout-audit
-```
+감사 결과에는 구체적인 문제, 영향을 받는 범위, 증거, 대응되는 W3C 요구사항, 영향, 수정 제안이 포함되어야 합니다.

@@ -2,53 +2,35 @@
 
 [繁體中文](README.zh-Hant.md) | [简体中文](README.zh-Hans.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
 
-This repository contains the `cjk-layout-audit` agent skill for auditing Chinese, Japanese, and Korean text layout in frontend pages, rendered webpages, EPUB/ebook content, PDFs, screenshots, and source files.
+`cjk-layout-audit` is an agent skill for auditing Chinese, Japanese, and Korean text layout in webpages, frontend apps, ebooks, PDFs, screenshots, and source-backed rendered content.
 
-The skill is based on W3C text layout requirements:
+It helps an agent check whether visible CJK text is readable, properly wrapped, correctly spaced, and aligned with W3C text layout requirements.
 
-- [JLReq: Requirements for Japanese Text Layout](https://www.w3.org/TR/jlreq/)
-- [CLReq: Requirements for Chinese Text Layout](https://www.w3.org/TR/clreq/)
-- [KLReq: Requirements for Hangul Text Layout and Typography](https://www.w3.org/TR/klreq/)
+## Standards
 
-## Contents
+- [JLReq: Requirements for Japanese Text Layout / 日本語組版処理の要件](https://www.w3.org/TR/jlreq/)
+- [CLReq: Requirements for Chinese Text Layout / 中文排版需求](https://www.w3.org/TR/clreq/)
+- [KLReq: Requirements for Hangul Text Layout and Typography / 한국어 텍스트 레이아웃 및 타이포그래피를 위한 요구사항](https://www.w3.org/TR/klreq/)
 
-- `cjk-layout-audit/SKILL.md` - main skill instructions and workflow.
-- `cjk-layout-audit/references/audit-model.md` - W3C requirement families, severity rules, and evidence standards.
-- `cjk-layout-audit/references/artifact-contract.md` - `/goal` loop, subagent, artifact, receipt, and report contract.
-- `cjk-layout-audit/scripts/cjk_layout_probe.py` - helper script for local text, HTML/XHTML, CSS, and EPUB triage.
-- `cjk-layout-audit/agents/openai.yaml` - UI metadata for the skill.
+## What It Checks
 
-## Use
+- language and locale metadata
+- horizontal and vertical writing modes
+- line breaking and forbidden line-start or line-end punctuation
+- punctuation spacing and hanging punctuation
+- ruby, phonetic annotations, emphasis marks, and inline notes
+- CJK and Latin mixed text, numbers, dates, and symbols
+- paragraph spacing, justification, widows, orphans, headings, and page breaks
+- ebook or PDF page layout, running heads, figures, tables, and notes
 
-Invoke the skill from an agent runtime such as Codex with:
+## How To Use
+
+Use this prompt in an agent runtime that supports this skill:
 
 ```text
-Use $cjk-layout-audit to audit this CJK webpage or ebook for W3C text layout issues.
+Use $cjk-layout-audit to audit this CJK webpage or ebook against W3C text layout requirements.
 ```
 
-For non-trivial audits, the skill instructs agents to use a `/goal` loop, split coverage across subagents, require surface-level receipts, and complete only after the declared audit scope is closed.
+For larger audits, provide the target URL, local files, screenshots, ebook/PDF, expected language, and the devices or page sizes you care about.
 
-## Probe Script
-
-Run the helper script on local files to identify CJK script coverage, relevant CSS properties, ruby markup, suspicious line-boundary punctuation, and mixed CJK/Latin spacing leads:
-
-```bash
-python3 cjk-layout-audit/scripts/cjk_layout_probe.py --json path/to/file.html
-```
-
-The probe output is triage only. The skill requires rendered or extracted evidence before reporting a layout finding.
-
-## Validation
-
-Basic local checks used during creation:
-
-```bash
-python3 -B cjk-layout-audit/scripts/cjk_layout_probe.py --json path/to/file.html
-PYTHONDONTWRITEBYTECODE=1 python3 -m py_compile cjk-layout-audit/scripts/cjk_layout_probe.py
-```
-
-The Codex-compatible skill validator can be run when its Python dependencies are available:
-
-```bash
-python3 ~/.codex/skills/.system/skill-creator/scripts/quick_validate.py cjk-layout-audit
-```
+The audit should return concrete findings with affected content, evidence, W3C mapping, impact, and remediation.
